@@ -3,13 +3,14 @@
     "name": "Adam Kucharik",
     "email": "akucharik@gmail.com"
   },
-  "description": "An extremely small and simple tap/click helper used to avoid ghost clicks when both touch and mouse event listeners are applied to the same element.",
+  "description": "An extremely small and simple touch/mouse helper used to avoid ghost clicks when both touch and mouse event listeners are applied to the same element.",
   "homepage": "",
   "keywords": [
     "ghost click",
     "touch event",
     "mouse event",
     "tap",
+    "touch",
     "click"
   ],
   "license": "MIT",

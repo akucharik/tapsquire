@@ -29,10 +29,10 @@ var TapSquire = function () {
     }
 
     /**
-    * Wraps a touch/click event handler with TapSquire magic.
+    * Wraps an event handler with TapSquire magic.
     *
-    * @param {Function} handler - The event handler.
-    * @param {Array} params - An array of parameters to pass to the handler.
+    * @param {Function} handler - The event handler to be wrapped/handled by TapSquire.
+    * @param {Array} params - An array of parameters to be passed to the event handler.
     * @returns {Function} The handler wrapped in TapSquire magic.
     */
 
@@ -61,7 +61,7 @@ var TapSquire = function () {
 }();
 
 /**
-* The time threshold (in milliseconds) for all ghost click handling.
+* The time threshold (in milliseconds) within which TapSquire will prevent any non-touch events from executing the handler. Applies to all TapSquire instances.
 * @name TapSquire.timeThreshold
 * @static
 * @property {Number}
