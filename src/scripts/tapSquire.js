@@ -23,7 +23,7 @@ class TapSquire {
     *
     * @param {Function} handler - The event handler to be wrapped/handled by TapSquire.
     * @param {Array} params - An array of parameters to be passed to the event handler.
-    * @returns {Function} The handler wrapped in TapSquire magic.
+    * @returns {Function} A function that manages the execution of the provided event handler.
     */
     wrapHandler (handler, params) {
         return (e) => {

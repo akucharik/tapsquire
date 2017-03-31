@@ -35,7 +35,7 @@ var ts = new TapSquire();
 ```
 
 ### Members ###
-#### timeThreshold `Number, static` ####
+#### timeThreshold `static, Number, default = 300` ####
 The time threshold (in milliseconds) within which TapSquire will prevent any non-touch events from executing the handler.
 Applies to all TapSquire instances.
 
@@ -52,6 +52,9 @@ The event handler to be wrapped/handled by TapSquire.
 
 ##### params `Array, optional` #####
 An array of parameters to be passed to the event handler.
+
+##### returns `Function` #####
+A function that manages the execution of the provided event handler.
 
 ```javascript
 var onTap = new TapSquire().wrapHandler(function (event, customArg1, customArg2) {
