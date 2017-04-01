@@ -75,7 +75,7 @@ ts.element;
 ```
 
 ## Methods
-### addEventListener(type, handler, [useCature])
+### addEventListener(type, handler, [useCapture])
 Adds an event listener with TapSquire magic.
 
 #### type `String`
