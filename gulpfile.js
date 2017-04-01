@@ -37,7 +37,7 @@ process.env.NODE_ENV = config.environment;
 
 gulp.task('default', ['build']);
 
-gulp.task('build', ['test:scripts', 'compile:scripts'], () => {
+gulp.task('build', ['compile:scripts'], () => {
     return;
 });
 
