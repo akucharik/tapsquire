@@ -59,7 +59,7 @@ Applies to all TapSquire instances.
 TapSquire.timeThreshold = 400;
 ```
 
-<div style="border-bottom: 1px dotted #dadcdf;"></div>
+---
 
 #### version `static, String` ####
 The version.
@@ -68,7 +68,7 @@ The version.
 TapSquire.version;
 ```
 
-<div style="border-bottom: 1px dotted #dadcdf;"></div>
+---
 
 #### element `Element, readonly` ####
 The HTML element for which the TapSquire instance will manage events.
@@ -96,7 +96,7 @@ ts.addEventListener('touchend', onTap);
 ts.addEventListener('click', onTap);
 ```
 
-<div style="border-bottom: 1px dotted #dadcdf;"></div>
+---
 
 #### destroy() ####
 Destroys the TapSquire instance.
@@ -105,7 +105,7 @@ Destroys the TapSquire instance.
 ts.destroy();
 ```
 
-<div style="border-bottom: 1px dotted #dadcdf;"></div>
+---
 
 #### wrapHandler(handler, [params]) ####
 Wraps an event handler with TapSquire magic.
