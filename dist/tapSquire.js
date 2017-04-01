@@ -5,9 +5,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var touchEventType = {
-    TOUCHSTART: 'touchstart',
-    TOUCHEND: 'touchend'
+var eventType = {
+    CLICK: 'click',
+    MOUSE: 'mouse',
+    TOUCH: 'touch',
+    TOUCHSTART: 'touchstart'
 };
 
 var config = {
@@ -19,40 +21,92 @@ var config = {
 * 
 * @class TapSquire
 * @constructor
+* @param {Element} element - The HTML element for which the TapSquire instance will manage events.
 */
 
 var TapSquire = function () {
-    function TapSquire() {
+    function TapSquire(element) {
         _classCallCheck(this, TapSquire);
 
-        this.prevTapTime = 0;
+        /**
+        * @property {Element} - The element to manage.
+        * @readonly
+        */
+        this.element = element;
+
+        /**
+        * @property {String} - The type of the most recent event.
+        * @readonly
+        */
+        this.prevEventType = '';
+
+        /**
+        * @property {Number} - The time of the most recent event.
+        * @readonly
+        */
+        this.prevEventTime = 0;
     }
 
-    /**
-    * Wraps an event handler with TapSquire magic.
+    /*
+    * Destroys the TapSquire instance.
     *
-    * @param {Function} handler - The event handler to be wrapped/handled by TapSquire.
-    * @param {Array} params - An array of parameters to be passed to the event handler.
-    * @returns {Function} A function that manages the execution of the provided event handler.
+    * @return {TapSquire} - The TapSquire instance.
     */
 
 
     _createClass(TapSquire, [{
+        key: 'destroy',
+        value: function destroy() {
+            this.element = null;
+        }
+
+        /**
+        * Adds an event listener with TapSquire magic.
+        *
+        * @param {String} type - The event type to listen for.
+        * @param {Function} handler - A function to execute when the event is triggered.
+        * @param {Boolean} useCapture - Indicates that events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
+        */ /*
+           * Adds an event listener with TapSquire magic.
+           *
+           * @param {String} type - The event type to listen for.
+           * @param {Function} handler - A function to execute when the event is triggered.
+           * @param {Object} options - An object of options.
+           */
+
+    }, {
+        key: 'addEventListener',
+        value: function addEventListener(type, handler, useCapture) {
+            this.element.addEventListener(type, this.wrapHandler(handler), useCapture);
+        }
+
+        /**
+        * Wraps an event handler with TapSquire magic. Use this method if you want to pass the event handler specific parameters.
+        *
+        * @param {Function} handler - The event handler to be wrapped/handled by TapSquire.
+        * @param {Array} [params=[]] - An array of parameters to be passed to the event handler.
+        * @returns {Function} A function that manages the execution of the provided event handler.
+        */
+
+    }, {
         key: 'wrapHandler',
-        value: function wrapHandler(handler, params) {
+        value: function wrapHandler(handler) {
             var _this = this;
+
+            var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
             return function (e) {
                 var p = params.slice(0);
                 var t = Date.now();
+                var isMouseEventAfterTouchstart = _this.prevEventType === eventType.TOUCHSTART && e.type.includes(eventType.MOUSE);
 
                 p.unshift(e);
 
-                if (e.type === touchEventType.TOUCHSTART || e.type === touchEventType.TOUCHEND || t - _this.prevTapTime > TapSquire.timeThreshold) {
+                if (!isMouseEventAfterTouchstart && (!e.type.includes(eventType.MOUSE) && e.type !== eventType.CLICK || !_this.prevEventType.includes(eventType.TOUCH) || t - _this.prevEventTime > TapSquire.timeThreshold)) {
+                    _this.prevEventType = e.type;
+                    _this.prevEventTime = t;
                     handler.apply(e.target, p);
                 }
-
-                _this.prevTapTime = t;
             };
         }
     }]);
@@ -77,7 +131,7 @@ TapSquire.timeThreshold = config.timeThreshold;
 * @property {String}
 */
 Object.defineProperty(TapSquire, 'version', {
-    value: '0.1.0'
+    value: '0.1.0-alpha'
 });
 
 module.exports = TapSquire;
