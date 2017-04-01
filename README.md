@@ -4,7 +4,7 @@ TapSquire is an extremely small and simple touch/mouse helper used to avoid ghos
 It works by preventing mouse events from firing (within the default time threshold of 300ms) after touchstart or touchend events.
 This preserves the ability to touch and scroll from an element with a touchstart event listener.
 
-## Usage ##
+# Usage
 
 Download the minified library and include it in your html.
 
@@ -37,21 +37,21 @@ ts.element.addEventListener('touchend', onTap);
 ts.element.addEventListener('click', onTap);
 ```
 
-## Documentation ##
+# Documentation
 
-### Constructor ###
-#### TapSquire(element) ####
+## Constructor
+### TapSquire(element)
 Creates a TapSquire instance.
 
-##### element `Element` #####
+#### element `Element`
 The HTML element for which the TapSquire instance will manage events.
 
 ```javascript
 var ts = new TapSquire(document.getElementById('tapElement'));
 ```
 
-### Members ###
-#### timeThreshold `static, Number, default = 300` ####
+## Members
+### timeThreshold `static, Number, default = 300`
 The time threshold (in milliseconds) within which TapSquire will prevent any non-touch events from executing the handler.
 Applies to all TapSquire instances.
 
@@ -59,18 +59,14 @@ Applies to all TapSquire instances.
 TapSquire.timeThreshold = 400;
 ```
 
----
-
-#### version `static, String` ####
+### version `static, String`
 The version.
 
 ```javascript
 TapSquire.version;
 ```
 
----
-
-#### element `Element, readonly` ####
+### element `Element, readonly`
 The HTML element for which the TapSquire instance will manage events.
 
 ```javascript
@@ -78,17 +74,17 @@ var ts = new TapSquire(document.getElementById('tapElement'));
 ts.element;
 ```
 
-### Methods ###
-#### addEventListener(type, handler, [useCature]) ####
+## Methods
+### addEventListener(type, handler, [useCature])
 Adds an event listener with TapSquire magic.
 
-##### type `String` #####
+#### type `String`
 The event type to listen for.
 
-##### handler `Function` #####
+#### handler `Function`
 A function to execute when the event is triggered.
 
-##### useCapture `Boolean` #####
+#### useCapture `Boolean`
 Indicates that events of this type will be dispatched to the registered listener before being dispatched to any EventTarget beneath it in the DOM tree.
 
 ```javascript
@@ -96,27 +92,23 @@ ts.addEventListener('touchend', onTap);
 ts.addEventListener('click', onTap);
 ```
 
----
-
-#### destroy() ####
+### destroy()
 Destroys the TapSquire instance.
 
 ```javascript
 ts.destroy();
 ```
 
----
-
-#### wrapHandler(handler, [params]) ####
+### wrapHandler(handler, [params])
 Wraps an event handler with TapSquire magic.
 
-##### handler `Function` #####
+#### handler `Function`
 The event handler to be wrapped/handled by TapSquire.
 
-##### params `Array, optional` #####
+#### params `Array, optional`
 An array of parameters to be passed to the event handler.
 
-##### returns `Function` #####
+#### returns `Function`
 A function that manages the execution of the provided event handler.
 
 ```javascript
