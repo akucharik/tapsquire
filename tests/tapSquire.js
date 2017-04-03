@@ -54,7 +54,7 @@ test('TapSquire', () => {
         timer.restore();
     });
 
-    test('TapSquire.timeThreshold', () => {
+    test('time threshold', () => {
         assert('should intially have a time threshold of 300', () => {
             expect(TapSquire.timeThreshold).to.equal(300);
         });
@@ -79,8 +79,8 @@ test('TapSquire', () => {
         });
     });
 
-    test('instance.prevEventType', () => {
-        assert('should reflect the most recently fired event', () => {
+    test('previous event type', () => {
+        assert('should reflect the most recent event fired by the TapSquire instance', () => {
             emitEvent('touchstart', btn);
             expect(ts.prevEventType).to.equal('touchstart');
             
@@ -120,15 +120,7 @@ test('TapSquire', () => {
         });
     });
     
-    test('addEventListener', () => {
-        assert('should add an event listener of the specified type to the element', () => {
-            ts.addEventListener('addShortcut', btnSpy);
-            emitEvent('addShortcut', ts.element);
-            expect(btnSpy.callCount).to.equal(1);
-        });
-    });
-    
-    test('wrapHandler', () => {
+    test('wrap handler', () => {
         assert('should return a function', () => {
             expect(btnHandler).to.be.a('function');
         });
@@ -143,7 +135,17 @@ test('TapSquire', () => {
             expect(btnSpy.getCall(0).args[1]).to.equal(param1);
             expect(btnSpy.getCall(0).args[2]).to.equal(param2);
         });
-        
+    });
+    
+    test('add listener', () => {
+        assert('should add an event listener of the specified type to the element', () => {
+            ts.addEventListener('addShortcut', btnSpy);
+            emitEvent('addShortcut', ts.element);
+            expect(btnSpy.callCount).to.equal(1);
+        });
+    });
+    
+    test('prevent mouse events', () => {
         assert('should prevent mouse events after touchstart', () => {
             emitEvent('touchstart', btn);
             emitEvent('mousedown', btn);
@@ -183,7 +185,9 @@ test('TapSquire', () => {
             emitEvent('mousemove', btn);
             expect(btnSpy.callCount).to.equal(2);
         });
-        
+    });
+    
+    test('allow mouse events', () => {
         assert('should allow mouse events after the time threshold', () => {
             btnSpy.reset();
             emitEvent('touchend', btn);
@@ -202,13 +206,6 @@ test('TapSquire', () => {
             timer.tick(301);
             emitEvent('mousemove', btn);
             expect(btnSpy.callCount).to.equal(2);
-        });
-        
-        assert('should allow subsequent touch events', () => {
-            emitEvent('touchstart', btn);
-            emitEvent('touchmove', btn);
-            emitEvent('touchend', btn);
-            expect(btnSpy.callCount).to.equal(3);
         });
         
         assert('should allow mouse events if not preceeded by a touch event', () => {
@@ -234,6 +231,15 @@ test('TapSquire', () => {
             emitEvent('mousemove', btn);
             emitEvent('mousemove', btn);
             expect(btnSpy.callCount).to.equal(2);
+        });
+    });
+    
+    test('allow all touch events', () => {
+        assert('should allow subsequent touch events', () => {
+            emitEvent('touchstart', btn);
+            emitEvent('touchmove', btn);
+            emitEvent('touchend', btn);
+            expect(btnSpy.callCount).to.equal(3);
         });
     });
 });
