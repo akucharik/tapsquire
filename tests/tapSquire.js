@@ -6,9 +6,9 @@ import {
 import { expect }  from 'chai';
 import jsdom       from 'mocha-jsdom';
 import sinon       from 'sinon';
+import TapSquire   from '../src/scripts/tapSquire';
     
 test('TapSquire', () => {
-    var TapSquire;
     var ts;
     var btn;
     var btnSpy;
@@ -23,11 +23,8 @@ test('TapSquire', () => {
         el.dispatchEvent(e);
         return e;
     };
-    jsdom()
     
-    before('set up jsdom dependencies', () => {
-        TapSquire = require('../dist/tapSquire.js')
-    })
+    jsdom();
     
     beforeEach('test setup', () => {
         document.body.innerHTML = '<button id="button"></button>'
@@ -81,35 +78,31 @@ test('TapSquire', () => {
 
     test('previous event type', () => {
         assert('should reflect the most recent event fired by the TapSquire instance', () => {
-            emitEvent('touchstart', btn);
-            expect(ts.prevEventType).to.equal('touchstart');
+            const touchCases = [
+                ['touchstart', 'mousedown'],
+                ['touchstart', 'click'],
+                ['touchstart', 'mousemove'],
+                ['touchend', 'mousedown'],
+                ['touchend', 'mouseup'],
+                ['touchend', 'click'],
+                ['touchmove', 'mousemove']
+            ];
             
-            emitEvent('touchstart', btn);
-            emitEvent('mousedown', btn);
-            expect(ts.prevEventType).to.equal('touchstart');
-            
-            emitEvent('touchend', btn);
-            emitEvent('mouseup', btn);
-            expect(ts.prevEventType).to.equal('touchend');
-            
-            emitEvent('touchstart', btn);
-            emitEvent('click', btn);
-            expect(ts.prevEventType).to.equal('touchstart');
-            
-            emitEvent('touchend', btn);
-            emitEvent('click', btn);
-            expect(ts.prevEventType).to.equal('touchend');
+            touchCases.forEach(eventCase => {
+                eventCase.forEach(event => {
+                    emitEvent(event, btn);
+                });
+                expect(ts.prevEventType).to.equal(eventCase[0]);
+            });
             
             timer.tick(301);
-            emitEvent('mousedown', btn);
-            expect(ts.prevEventType).to.equal('mousedown');
-
-            emitEvent('mousedown', btn);
-            emitEvent('mouseup', btn);
-            expect(ts.prevEventType).to.equal('mouseup');
             
-            emitEvent('click', btn);
-            expect(ts.prevEventType).to.equal('click');
+            const mouseEvents = ['mousedown', 'mouseup', 'click', 'mousemove'];
+            
+            mouseEvents.forEach(event => {
+                emitEvent(event, btn);
+                expect(ts.prevEventType).to.equal(event);
+            });
         });
     });
     
@@ -146,100 +139,69 @@ test('TapSquire', () => {
     });
     
     test('prevent mouse events', () => {
-        assert('should prevent mouse events after touchstart', () => {
-            emitEvent('touchstart', btn);
-            emitEvent('mousedown', btn);
-            expect(btnSpy.callCount).to.equal(1);
+        assert('should prevent mouse events after touch events', () => {
+            const eventCases = [
+                ['touchstart', 'mousedown'],
+                ['touchstart', 'click'],
+                ['touchstart', 'mousemove'],
+                ['touchend', 'mousedown'],
+                ['touchend', 'mouseup'],
+                ['touchend', 'click'],
+                ['touchmove', 'mousemove']
+            ];
             
-            btnSpy.reset();
-            emitEvent('touchstart', btn);
-            emitEvent('click', btn);
-            expect(btnSpy.callCount).to.equal(1);
-            
-            btnSpy.reset();
-            emitEvent('touchstart', btn);
-            emitEvent('mousemove', btn);
-            expect(btnSpy.callCount).to.equal(1);
-        });
-        
-        assert('should prevent mouse events shortly after touchend', () => {
-            emitEvent('touchend', btn);
-            emitEvent('mousedown', btn);
-            expect(btnSpy.callCount).to.equal(1);
-            
-            btnSpy.reset();
-            emitEvent('touchend', btn);
-            emitEvent('mouseup', btn);
-            expect(btnSpy.callCount).to.equal(1);
-            
-            btnSpy.reset();
-            emitEvent('touchend', btn);
-            emitEvent('click', btn);
-            expect(btnSpy.callCount).to.equal(1);
-        });
-        
-        assert('should prevent mouse events shortly after touchmove', () => {
-            emitEvent('touchmove', btn);
-            emitEvent('mousemove', btn);
-            emitEvent('touchmove', btn);
-            emitEvent('mousemove', btn);
-            expect(btnSpy.callCount).to.equal(2);
+            eventCases.forEach(eventCase => {
+                btnSpy.reset();
+                emitEvent(eventCase[0], btn);
+                emitEvent(eventCase[1], btn);
+                expect(btnSpy.callCount).to.equal(1);
+            });
         });
     });
     
     test('allow mouse events', () => {
         assert('should allow mouse events after the time threshold', () => {
-            btnSpy.reset();
-            emitEvent('touchend', btn);
-            timer.tick(301);
-            emitEvent('mouseup', btn);
-            expect(btnSpy.callCount).to.equal(2);
+            const eventCases = [
+                ['touchend', 'mouseup'],
+                ['touchend', 'click'],
+                ['touchmove', 'mousemove']
+            ];
             
-            btnSpy.reset();
-            emitEvent('touchend', btn);
-            timer.tick(301);
-            emitEvent('click', btn);
-            expect(btnSpy.callCount).to.equal(2);
-            
-            btnSpy.reset();
-            emitEvent('touchmove', btn);
-            timer.tick(301);
-            emitEvent('mousemove', btn);
-            expect(btnSpy.callCount).to.equal(2);
+            eventCases.forEach((eventCase) => {
+                btnSpy.reset();
+                emitEvent(eventCase[0], btn);
+                timer.tick(301);
+                emitEvent(eventCase[1], btn);
+                expect(btnSpy.callCount).to.equal(2);
+            });
         });
         
         assert('should allow mouse events if not preceeded by a touch event', () => {
-            emitEvent('mousedown', btn);
-            emitEvent('mousemove', btn);
-            emitEvent('mouseup', btn);
-            expect(btnSpy.callCount).to.equal(3);
-        });
-        
-        assert('should allow mousedown events if not preceeded by a touch event', () => {
-            emitEvent('mousedown', btn);
-            emitEvent('mousedown', btn);
-            expect(btnSpy.callCount).to.equal(2);
-        });
-        
-        assert('should allow click events if not preceeded by a touch event', () => {
-            emitEvent('click', btn);
-            emitEvent('click', btn);
-            expect(btnSpy.callCount).to.equal(2);
-        });
-        
-        assert('should allow mousemove events if not preceeded by a touch event', () => {
-            emitEvent('mousemove', btn);
-            emitEvent('mousemove', btn);
-            expect(btnSpy.callCount).to.equal(2);
+            const eventCases = [
+                ['mousedown', 'mousemove', 'mouseup'],
+                ['mousedown', 'mousedown'],
+                ['click', 'click'],
+                ['mousemove', 'mousemove']
+            ];
+            
+            eventCases.forEach(eventCase => {
+                btnSpy.reset();
+                eventCase.forEach(event => {
+                    emitEvent(event, btn);
+                });                
+                expect(btnSpy.callCount).to.equal(eventCase.length);
+            });
         });
     });
     
     test('allow all touch events', () => {
         assert('should allow subsequent touch events', () => {
-            emitEvent('touchstart', btn);
-            emitEvent('touchmove', btn);
-            emitEvent('touchend', btn);
-            expect(btnSpy.callCount).to.equal(3);
+            const events = ['touchstart', 'touchmove', 'touchend'];
+            
+            events.forEach(event => {
+                emitEvent(event, btn);
+            });
+            expect(btnSpy.callCount).to.equal(events.length);
         });
     });
 });
