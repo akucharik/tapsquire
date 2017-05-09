@@ -29,7 +29,7 @@ var config = {
         source: './src/scripts/tapSquire.js'
     },
     tests: {
-        source: './tests/*.js'
+        source: './tests/**/*.js'
     }
 };
 
