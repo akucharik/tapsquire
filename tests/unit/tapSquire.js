@@ -6,19 +6,19 @@ import {
 import { expect }  from 'chai';
 import jsdom       from 'mocha-jsdom';
 import sinon       from 'sinon';
-import TapSquire   from '../src/scripts/tapSquire';
+import TapSquire   from '../../src/scripts/tapSquire';
     
-test('TapSquire', () => {
-    var ts;
-    var btn;
-    var btnSpy;
-    var btnHandler;
-    var btnHandlerWithParams;
-    var param1 = 'param1';
-    var param2 = 'param2';
-    var timer;
-    var emitEvent = (type, el) => {
-        var e = document.createEvent('Event');
+test('TapSquire:', () => {
+    let ts;
+    let btn;
+    let btnSpy;
+    let btnHandler;
+    let btnHandlerWithParams;
+    let param1 = 'param1';
+    let param2 = 'param2';
+    let timer;
+    let emitEvent = (type, el) => {
+        let e = document.createEvent('Event');
         e.initEvent(type, true, true);
         el.dispatchEvent(e);
         return e;
@@ -47,36 +47,69 @@ test('TapSquire', () => {
     
     afterEach('test teardown', () => {
         TapSquire.timeThreshold = 300;
-        ts.destroy();
-        timer.restore();
     });
 
-    test('time threshold', () => {
-        assert('should intially have a time threshold of 300', () => {
-            expect(TapSquire.timeThreshold).to.equal(300);
+    test('global time threshold', () => {
+        assert('should default to 300ms', () => {
+            const eventCases = [
+                ['touchstart', 'mousedown'],
+                ['touchstart', 'click'],
+                ['touchstart', 'mousemove'],
+                ['touchend', 'mousedown'],
+                ['touchend', 'mouseup'],
+                ['touchend', 'click'],
+                ['touchmove', 'mousemove']
+            ];
+            
+            eventCases.forEach((eventCase) => {
+                btnSpy.reset();
+                emitEvent(eventCase[0], btn);
+                timer.tick(300);
+                emitEvent(eventCase[1], btn);
+                expect(btnSpy.callCount).to.equal(1);
+                
+                btnSpy.reset();
+                emitEvent(eventCase[0], btn);
+                timer.tick(301);
+                emitEvent(eventCase[1], btn);
+                expect(btnSpy.callCount).to.equal(2);
+            });
         });
         
-        assert('should have a time threshold of 400', () => {
+        assert('should be writable', () => {
             TapSquire.timeThreshold = 400;
-            expect(TapSquire.timeThreshold).to.equal(400);
+            
+            emitEvent('touchstart', btn);
+            timer.tick(400);
+            emitEvent('mousedown', btn);
+            expect(btnSpy.callCount).to.equal(1);
+            
+            btnSpy.reset();
+            emitEvent('touchstart', btn);
+            timer.tick(401);
+            emitEvent('mousedown', btn);
+            expect(btnSpy.callCount).to.equal(2);
+            
         });
     });
     
-    test('new instance', () => {
-        assert('should set its element to the provided element', () => {
-            expect(ts.element).to.equal(btn);
-        });
-        
-        assert('should intially have a previous event time of 0', () => {
+    test('when instantiating an instance', () => {
+        assert('should have a previous event time of 0', () => {
             expect(ts.prevEventTime).to.equal(0);
         });
         
-        assert('should intially have a previous event type of empty string', () => {
+        assert('should have a previous event type of empty string', () => {
             expect(ts.prevEventType).to.equal('');
         });
     });
+    
+    test('when instantiating an instance with a DOM element', () => {
+        assert('should reference the DOM element', () => {
+            expect(ts.element).to.equal(btn);
+        });
+    });
 
-    test('previous event type', () => {
+    test('when events are emitted', () => {
         assert('should reflect the most recent event fired by the TapSquire instance', () => {
             const touchCases = [
                 ['touchstart', 'mousedown'],
@@ -106,14 +139,14 @@ test('TapSquire', () => {
         });
     });
     
-    test('destroy', () => {
-        assert('should prepare the instance for garbage collection', () => {
+    test('when destroying an instance', () => {
+        assert('should remove the DOM element reference', () => {
             ts.destroy();
             expect(ts.element).to.be.null;
         });
     });
     
-    test('wrap handler', () => {
+    test('when wrapping a handler', () => {
         assert('should return a function', () => {
             expect(btnHandler).to.be.a('function');
         });
@@ -130,16 +163,16 @@ test('TapSquire', () => {
         });
     });
     
-    test('add listener', () => {
-        assert('should add an event listener of the specified type to the element', () => {
+    test('when adding a listener', () => {
+        assert('should add an event listener to it\'s element', () => {
             ts.addEventListener('addShortcut', btnSpy);
             emitEvent('addShortcut', ts.element);
             expect(btnSpy.callCount).to.equal(1);
         });
     });
     
-    test('prevent mouse events', () => {
-        assert('should prevent mouse events after touch events', () => {
+    test('when mouse events are triggered promptly after touch events', () => {
+        assert('should prevent mouse events', () => {
             const eventCases = [
                 ['touchstart', 'mousedown'],
                 ['touchstart', 'click'],
@@ -159,9 +192,13 @@ test('TapSquire', () => {
         });
     });
     
-    test('allow mouse events', () => {
-        assert('should allow mouse events after the time threshold', () => {
+    test('when mouse events are triggered well after touch events', () => {
+        assert('should allow mouse events', () => {
             const eventCases = [
+                ['touchstart', 'mousedown'],
+                ['touchstart', 'click'],
+                ['touchstart', 'mousemove'],
+                ['touchend', 'mousedown'],
                 ['touchend', 'mouseup'],
                 ['touchend', 'click'],
                 ['touchmove', 'mousemove']
@@ -175,13 +212,13 @@ test('TapSquire', () => {
                 expect(btnSpy.callCount).to.equal(2);
             });
         });
-        
-        assert('should allow mouse events if not preceeded by a touch event', () => {
+    });
+    
+    test('when mouse events are triggered and are not preceeded by touch events', () => {
+        assert('should allow mouse events', () => {
             const eventCases = [
-                ['mousedown', 'mousemove', 'mouseup'],
-                ['mousedown', 'mousedown'],
-                ['click', 'click'],
-                ['mousemove', 'mousemove']
+                ['mousedown', 'mousemove', 'mousemove', 'mousemove', 'mouseup'],
+                ['click', 'click']
             ];
             
             eventCases.forEach(eventCase => {
@@ -194,9 +231,10 @@ test('TapSquire', () => {
         });
     });
     
-    test('allow all touch events', () => {
-        assert('should allow subsequent touch events', () => {
-            const events = ['touchstart', 'touchmove', 'touchend'];
+    
+    test('when touch events are triggered', () => {
+        assert('should allow all touch events', () => {
+            const events = ['touchstart', 'touchmove', 'touchend', 'touchstart', 'touchmove', 'touchmove', 'touchmove', 'touchend'];
             
             events.forEach(event => {
                 emitEvent(event, btn);

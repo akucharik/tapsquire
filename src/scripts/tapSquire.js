@@ -1,8 +1,7 @@
 const eventType = {
     CLICK: 'click',
     MOUSE: 'mouse',
-    TOUCH: 'touch',
-    TOUCHSTART: 'touchstart'
+    TOUCH: 'touch'
 };
 
 const config = {
@@ -74,11 +73,11 @@ class TapSquire {
         return (e) => {
             const p = params.slice(0);
             const t = Date.now();
-            const isMouseEventAfterTouchstart = this.prevEventType === eventType.TOUCHSTART && e.type.includes(eventType.MOUSE);
+            const isMouseEventAfterTouchEvent = this.prevEventType.includes(eventType.TOUCH) && (e.type.includes(eventType.MOUSE) || e.type.includes(eventType.CLICK));
 
             p.unshift(e);
 
-            if (!isMouseEventAfterTouchstart && (!e.type.includes(eventType.MOUSE) && e.type !== eventType.CLICK || !this.prevEventType.includes(eventType.TOUCH) || t - this.prevEventTime > TapSquire.timeThreshold)) {
+            if (!isMouseEventAfterTouchEvent || t - this.prevEventTime > TapSquire.timeThreshold) {
                 this.prevEventType = e.type;
                 this.prevEventTime = t;
                 handler.apply(e.target, p);
